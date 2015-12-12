@@ -5,11 +5,14 @@ import (
 	"strconv"
 )
 
+// LineString represents a connected sequence of points.
+// Extra dimensions are allowed and must be consistent for all points in the line.
 type LineString struct {
 	Coordinates []float64
 	Extra       int
 }
 
+// MarshalJSON returns the GeoJSON representation of the line.
 func (line *LineString) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 	buffer.WriteString(`{"type":"LineString","coordinates":[`)
@@ -20,7 +23,7 @@ func (line *LineString) MarshalJSON() ([]byte, error) {
 			buffer.WriteString(`,`)
 		}
 		buffer.WriteString(`[`)
-		for j := 0; j < stride; j += 1 {
+		for j := 0; j < stride; j++ {
 			if j != 0 {
 				buffer.WriteString(`,`)
 			}

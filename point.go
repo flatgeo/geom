@@ -5,10 +5,12 @@ import (
 	"strconv"
 )
 
+// Point represents coordinates of a single position.
 type Point struct {
 	Coordinates []float64
 }
 
+// MarshalJSON returns the GeoJSON encoding of a point.
 func (point *Point) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 

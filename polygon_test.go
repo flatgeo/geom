@@ -8,7 +8,7 @@ import (
 
 func TestPolygonJSON(t *testing.T) {
 	poly := &Polygon{
-		Coordinates: []float64{-180, -90, 180, -90, 180, 90, -180, 90},
+		Coordinates: []float64{-180, -90, 180, -90, 180, 90, -180, 90, -180, -90},
 	}
 
 	got, err := json.Marshal(poly)
@@ -17,7 +17,30 @@ func TestPolygonJSON(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := []byte(`{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90]]]}`)
+	expected := []byte(`{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]]]}`)
+
+	if !bytes.Equal(got, expected) {
+		t.Errorf("bad json: got %s but expected %s", got, expected)
+	}
+}
+
+func TestPolygonJSONHoles(t *testing.T) {
+	poly := &Polygon{
+		Coordinates: []float64{
+			-180, -90, 180, -90, 180, 90, -180, 90, -180, -90,
+			-100, -45, -100, 45, -50, 45, -50, -45, -100, -45,
+			100, -45, 100, 45, 50, 45, 50, -45, 100, -45,
+		},
+		RingStarts: []int{10, 20},
+	}
+
+	got, err := json.Marshal(poly)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := []byte(`{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]],[[-100,-45],[-100,45],[-50,45],[-50,-45],[-100,-45]],[[100,-45],[100,45],[50,45],[50,-45],[100,-45]]]}`)
 
 	if !bytes.Equal(got, expected) {
 		t.Errorf("bad json: got %s but expected %s", got, expected)

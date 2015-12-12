@@ -5,19 +5,21 @@ import (
 	"strconv"
 )
 
+// Polygon represents a surface enclosed by an exterior ring (with optional holes).
 type Polygon struct {
 	Coordinates []float64
 	RingStarts  []int
 	Extra       int
 }
 
+// MarshalJSON returns the GeoJSON encoding for the polygon.
 func (poly *Polygon) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 	buffer.WriteString(`{"type":"Polygon","coordinates":[`)
 
 	stride := 2 + poly.Extra
 	start := 0
-	for ring := 0; ring <= len(poly.RingStarts); ring += 1 {
+	for ring := 0; ring <= len(poly.RingStarts); ring++ {
 		if ring != 0 {
 			buffer.WriteString(`,`)
 		}
@@ -29,11 +31,11 @@ func (poly *Polygon) MarshalJSON() ([]byte, error) {
 			end = len(poly.Coordinates)
 		}
 		for i := start; i < end; i += stride {
-			if i != 0 {
+			if i != start {
 				buffer.WriteString(`,`)
 			}
 			buffer.WriteString(`[`)
-			for j := 0; j < stride; j += 1 {
+			for j := 0; j < stride; j++ {
 				if j != 0 {
 					buffer.WriteString(`,`)
 				}
@@ -42,7 +44,7 @@ func (poly *Polygon) MarshalJSON() ([]byte, error) {
 			buffer.WriteString(`]`)
 		}
 		buffer.WriteString(`]`)
-		start = end + 1
+		start = end
 	}
 
 	buffer.WriteString(`]}`)
