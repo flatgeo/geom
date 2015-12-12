@@ -17,7 +17,15 @@ func TestPolygonJSON(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := []byte(`{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]]]}`)
+	expected, _ := json.Marshal(struct {
+		Type        string        `json:"type"`
+		Coordinates [][][]float64 `json:"coordinates"`
+	}{
+		"Polygon",
+		[][][]float64{
+			{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
+		},
+	})
 
 	if !bytes.Equal(got, expected) {
 		t.Errorf("bad json: got %s but expected %s", got, expected)
@@ -40,7 +48,17 @@ func TestPolygonJSONHoles(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := []byte(`{"type":"Polygon","coordinates":[[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]],[[-100,-45],[-100,45],[-50,45],[-50,-45],[-100,-45]],[[100,-45],[100,45],[50,45],[50,-45],[100,-45]]]}`)
+	expected, _ := json.Marshal(struct {
+		Type        string        `json:"type"`
+		Coordinates [][][]float64 `json:"coordinates"`
+	}{
+		"Polygon",
+		[][][]float64{
+			{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
+			{{-100, -45}, {-100, 45}, {-50, 45}, {-50, -45}, {-100, -45}},
+			{{100, -45}, {100, 45}, {50, 45}, {50, -45}, {100, -45}},
+		},
+	})
 
 	if !bytes.Equal(got, expected) {
 		t.Errorf("bad json: got %s but expected %s", got, expected)

@@ -17,7 +17,13 @@ func TestLineStringJSON(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := []byte(`{"type":"LineString","coordinates":[[-180,-90],[180,90]]}`)
+	expected, _ := json.Marshal(struct {
+		Type        string      `json:"type"`
+		Coordinates [][]float64 `json:"coordinates"`
+	}{
+		"LineString",
+		[][]float64{{-180, -90}, {180, 90}},
+	})
 
 	if !bytes.Equal(got, expected) {
 		t.Errorf("bad json: got %s but expected %s", got, expected)
@@ -36,7 +42,13 @@ func TestLineStringJSON3D(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := []byte(`{"type":"LineString","coordinates":[[-180,-90,1.23],[180,90,4.56]]}`)
+	expected, _ := json.Marshal(struct {
+		Type        string      `json:"type"`
+		Coordinates [][]float64 `json:"coordinates"`
+	}{
+		"LineString",
+		[][]float64{{-180, -90, 1.23}, {180, 90, 4.56}},
+	})
 
 	if !bytes.Equal(got, expected) {
 		t.Errorf("bad json: got %s but expected %s", got, expected)
