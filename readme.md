@@ -9,4 +9,4 @@ Tests are written using the Ginkgo framework.  These can be run with the standar
     go get github.com/onsi/ginkgo/ginkgo
     ginkgo watch
 
-[![Current Status](https://secure.travis-ci.org/flatgeo/geom.png?branch=master)](https://travis-ci.org/flatgeo/geom)
+[![Build Status](https://travis-ci.org/flatgeo/geom.svg?branch=master)](https://travis-ci.org/flatgeo/geom)
