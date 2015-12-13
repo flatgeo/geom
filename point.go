@@ -34,10 +34,10 @@ func (point *Point) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// UnmarshalJSON creates a point from GeoJSON.
+// UnmarshalJSON creates a Point from GeoJSON.
 func (point *Point) UnmarshalJSON(data []byte) error {
-	geoJSON := geoJSONPoint{}
-	if err := json.Unmarshal(data, &geoJSON); err != nil {
+	geoJSON := &geoJSONPoint{}
+	if err := json.Unmarshal(data, geoJSON); err != nil {
 		return err
 	}
 	if geoJSON.Type != "Point" {
