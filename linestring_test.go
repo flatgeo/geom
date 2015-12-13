@@ -36,4 +36,79 @@ var _ = Describe("LineString", func() {
 
 	})
 
+	Describe("json.Unmarshal", func() {
+
+		It("Decodes GeoJSON linestrings", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "LineString",
+				"coordinates": [[-115, 45], [115, 45]]
+			}`), line)
+
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(line.Coordinates).Should(Equal([]float64{-115, 45, 115, 45}))
+			Ω(line.Extra).Should(Equal(0))
+		})
+
+		It("Preserves extra dimensions", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "LineString",
+				"coordinates": [[-115, 45, 1.234], [115, 45, 5.678]]
+			}`), line)
+
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(line.Coordinates).Should(Equal([]float64{-115, 45, 1.234, 115, 45, 5.678}))
+			Ω(line.Extra).Should(Equal(1))
+		})
+
+		It("Fails for invalid GeoJSON (bad type)", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "Bogus",
+				"coordinates": [[-115, 45], [115, 45]]
+			}`), line)
+
+			Ω(err).Should(MatchError(`Unexpected type: "Bogus"`))
+		})
+
+		It("Fails for invalid GeoJSON (missing coordinates)", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "LineString"
+			}`), line)
+
+			Ω(err).Should(MatchError("Expected a coordinates array with two or more values"))
+		})
+
+		It("Fails for invalid GeoJSON (not enough coordinates)", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "LineString",
+				"coordinates": [[1, 2]]
+			}`), line)
+
+			Ω(err).Should(MatchError("Expected a coordinates array with two or more values"))
+		})
+
+		It("Fails for invalid GeoJSON (inconsistent coordinate dimensions)", func() {
+			line := &LineString{}
+
+			err := json.Unmarshal([]byte(`{
+				"type": "LineString",
+				"coordinates": [[1, 2], [3, 4, 5]]
+			}`), line)
+
+			Ω(err).Should(MatchError("Unexpected point length for position 1"))
+		})
+
+	})
+
 })
