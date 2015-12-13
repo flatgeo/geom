@@ -3,6 +3,7 @@ package geom
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -40,7 +41,10 @@ func (point *Point) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if geoJSON.Type != "Point" {
-		return fmt.Errorf(`Expected "type": "Point", got: %s`, geoJSON.Type)
+		return fmt.Errorf(`Unexpected type: "%s"`, geoJSON.Type)
+	}
+	if len(geoJSON.Coordinates) < 2 {
+		return errors.New("Expected a coordinates array with two or more values")
 	}
 	point.Coordinates = geoJSON.Coordinates
 	return nil
