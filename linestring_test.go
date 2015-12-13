@@ -1,56 +1,49 @@
 package geom
 
 import (
-	"bytes"
 	"encoding/json"
-	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func TestLineStringJSON(t *testing.T) {
-	line := &LineString{
-		Coordinates: []float64{-180, -90, 180, 90},
-	}
+var _ = Describe("LineString", func() {
 
-	got, err := json.Marshal(line)
+	Describe("json.Marshal", func() {
 
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+		It("Encodes lines as GeoJSON", func() {
+			line := &LineString{
+				Coordinates: []float64{-180, -90, 180, 90},
+			}
 
-	expected, _ := json.Marshal(struct {
-		Type        string      `json:"type"`
-		Coordinates [][]float64 `json:"coordinates"`
-	}{
-		"LineString",
-		[][]float64{{-180, -90}, {180, 90}},
+			expected, _ := json.Marshal(struct {
+				Type        string      `json:"type"`
+				Coordinates [][]float64 `json:"coordinates"`
+			}{
+				"LineString",
+				[][]float64{{-180, -90}, {180, 90}},
+			})
+
+			Ω(json.Marshal(line)).Should(Equal(expected))
+		})
+
+		It("Preserves extra dimensions", func() {
+			line := &LineString{
+				Coordinates: []float64{-180, -90, 1.23, 180, 90, 4.56},
+				Extra:       1,
+			}
+
+			expected, _ := json.Marshal(struct {
+				Type        string      `json:"type"`
+				Coordinates [][]float64 `json:"coordinates"`
+			}{
+				"LineString",
+				[][]float64{{-180, -90, 1.23}, {180, 90, 4.56}},
+			})
+
+			Ω(json.Marshal(line)).Should(Equal(expected))
+		})
+
 	})
 
-	if !bytes.Equal(got, expected) {
-		t.Errorf("bad json: got %s but expected %s", got, expected)
-	}
-}
-
-func TestLineStringJSON3D(t *testing.T) {
-	line := &LineString{
-		Coordinates: []float64{-180, -90, 1.23, 180, 90, 4.56},
-		Extra:       1,
-	}
-
-	got, err := json.Marshal(line)
-
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	expected, _ := json.Marshal(struct {
-		Type        string      `json:"type"`
-		Coordinates [][]float64 `json:"coordinates"`
-	}{
-		"LineString",
-		[][]float64{{-180, -90, 1.23}, {180, 90, 4.56}},
-	})
-
-	if !bytes.Equal(got, expected) {
-		t.Errorf("bad json: got %s but expected %s", got, expected)
-	}
-}
+})

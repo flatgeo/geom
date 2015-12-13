@@ -1,66 +1,61 @@
 package geom
 
 import (
-	"bytes"
 	"encoding/json"
-	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func TestPolygonJSON(t *testing.T) {
-	poly := &Polygon{
-		Coordinates: []float64{-180, -90, 180, -90, 180, 90, -180, 90, -180, -90},
-	}
+var _ = Describe("Polygon", func() {
 
-	got, err := json.Marshal(poly)
+	Describe("json.Marshal", func() {
 
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+		It("Encodes polygons as GeoJSON", func() {
 
-	expected, _ := json.Marshal(struct {
-		Type        string        `json:"type"`
-		Coordinates [][][]float64 `json:"coordinates"`
-	}{
-		"Polygon",
-		[][][]float64{
-			{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
-		},
+			poly := &Polygon{
+				Coordinates: []float64{-180, -90, 180, -90, 180, 90, -180, 90, -180, -90},
+			}
+
+			expected, _ := json.Marshal(struct {
+				Type        string        `json:"type"`
+				Coordinates [][][]float64 `json:"coordinates"`
+			}{
+				"Polygon",
+				[][][]float64{
+					{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
+				},
+			})
+
+			Ω(json.Marshal(poly)).Should(Equal(expected))
+		})
+
+		It("Works with interior rings", func() {
+
+			poly := &Polygon{
+				Coordinates: []float64{
+					-180, -90, 180, -90, 180, 90, -180, 90, -180, -90,
+					-100, -45, -100, 45, -50, 45, -50, -45, -100, -45,
+					100, -45, 100, 45, 50, 45, 50, -45, 100, -45,
+				},
+				RingStarts: []int{10, 20},
+			}
+
+			expected, _ := json.Marshal(struct {
+				Type        string        `json:"type"`
+				Coordinates [][][]float64 `json:"coordinates"`
+			}{
+				"Polygon",
+				[][][]float64{
+					{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
+					{{-100, -45}, {-100, 45}, {-50, 45}, {-50, -45}, {-100, -45}},
+					{{100, -45}, {100, 45}, {50, 45}, {50, -45}, {100, -45}},
+				},
+			})
+
+			Ω(json.Marshal(poly)).Should(Equal(expected))
+		})
+
 	})
 
-	if !bytes.Equal(got, expected) {
-		t.Errorf("bad json: got %s but expected %s", got, expected)
-	}
-}
-
-func TestPolygonJSONHoles(t *testing.T) {
-	poly := &Polygon{
-		Coordinates: []float64{
-			-180, -90, 180, -90, 180, 90, -180, 90, -180, -90,
-			-100, -45, -100, 45, -50, 45, -50, -45, -100, -45,
-			100, -45, 100, 45, 50, 45, 50, -45, 100, -45,
-		},
-		RingStarts: []int{10, 20},
-	}
-
-	got, err := json.Marshal(poly)
-
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	expected, _ := json.Marshal(struct {
-		Type        string        `json:"type"`
-		Coordinates [][][]float64 `json:"coordinates"`
-	}{
-		"Polygon",
-		[][][]float64{
-			{{-180, -90}, {180, -90}, {180, 90}, {-180, 90}, {-180, -90}},
-			{{-100, -45}, {-100, 45}, {-50, 45}, {-50, -45}, {-100, -45}},
-			{{100, -45}, {100, 45}, {50, 45}, {50, -45}, {100, -45}},
-		},
-	})
-
-	if !bytes.Equal(got, expected) {
-		t.Errorf("bad json: got %s but expected %s", got, expected)
-	}
-}
+})
