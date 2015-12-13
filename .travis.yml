@@ -9,3 +9,7 @@ install:
   - export PATH=$PATH:$HOME/gopath/bin
 
 script: ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --trace --race --compilers=2
+
+branches:
+  only:
+    - master
