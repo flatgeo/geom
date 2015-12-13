@@ -2,6 +2,9 @@ package geom
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -10,6 +13,11 @@ type Polygon struct {
 	Coordinates []float64
 	RingStarts  []int
 	Extra       int
+}
+
+type geoJSONPolygon struct {
+	Type        string        `json:"type"`
+	Coordinates [][][]float64 `json:"coordinates"`
 }
 
 // MarshalJSON returns the GeoJSON encoding for the polygon.
@@ -49,4 +57,51 @@ func (poly *Polygon) MarshalJSON() ([]byte, error) {
 
 	buffer.WriteString(`]}`)
 	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON creates a Polygon from GeoJSON
+func (poly *Polygon) UnmarshalJSON(data []byte) error {
+	geoJSON := &geoJSONPolygon{}
+
+	if err := json.Unmarshal(data, geoJSON); err != nil {
+		return err
+	}
+	if geoJSON.Type != "Polygon" {
+		return fmt.Errorf(`Unexpected type: "%s"`, geoJSON.Type)
+	}
+	if len(geoJSON.Coordinates) < 1 {
+		return errors.New("Expected a coordinates array with one or more rings")
+	}
+
+	var coordinates []float64
+	var dimensions int
+	var ringStarts []int
+
+	for r := 0; r < len(geoJSON.Coordinates); r++ {
+		ring := geoJSON.Coordinates[r]
+		if r != 0 {
+			ringStarts = append(ringStarts, len(coordinates))
+		}
+		for i := 0; i < len(ring); i++ {
+			coord := ring[i]
+			if r == 0 && i == 0 {
+				dimensions = len(coord)
+				if dimensions < 2 {
+					return fmt.Errorf(`Unexpected length %d for first point`, dimensions)
+				}
+			} else {
+				if len(coord) != dimensions {
+					return fmt.Errorf(`Unexpected length %d for point %d in ring %d`, len(coord), i, r)
+				}
+			}
+			for j := 0; j < dimensions; j++ {
+				coordinates = append(coordinates, coord[j])
+			}
+		}
+	}
+
+	poly.Coordinates = coordinates
+	poly.Extra = dimensions - 2
+	poly.RingStarts = ringStarts
+	return nil
 }
