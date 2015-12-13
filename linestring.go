@@ -44,10 +44,10 @@ func (line *LineString) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// UnmarshalJSON creates a linestring from GeoJSON.
+// UnmarshalJSON creates a LineString from GeoJSON.
 func (line *LineString) UnmarshalJSON(data []byte) error {
-	geoJSON := geoJSONLineString{}
-	if err := json.Unmarshal(data, &geoJSON); err != nil {
+	geoJSON := &geoJSONLineString{}
+	if err := json.Unmarshal(data, geoJSON); err != nil {
 		return err
 	}
 	if geoJSON.Type != "LineString" {
