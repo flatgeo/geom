@@ -16,15 +16,10 @@ var _ = Describe("LineString", func() {
 				Coordinates: []float64{-180, -90, 180, 90},
 			}
 
-			expected, _ := json.Marshal(struct {
-				Type        string      `json:"type"`
-				Coordinates [][]float64 `json:"coordinates"`
-			}{
-				"LineString",
-				[][]float64{{-180, -90}, {180, 90}},
-			})
-
-			Ω(json.Marshal(line)).Should(Equal(expected))
+			Ω(json.Marshal(line)).Should(MatchJSON(`{
+				"type": "LineString",
+				"coordinates": [[-180, -90], [180, 90]]
+			}`))
 		})
 
 		It("Preserves extra dimensions", func() {
@@ -33,15 +28,10 @@ var _ = Describe("LineString", func() {
 				Extra:       1,
 			}
 
-			expected, _ := json.Marshal(struct {
-				Type        string      `json:"type"`
-				Coordinates [][]float64 `json:"coordinates"`
-			}{
-				"LineString",
-				[][]float64{{-180, -90, 1.23}, {180, 90, 4.56}},
-			})
-
-			Ω(json.Marshal(line)).Should(Equal(expected))
+			Ω(json.Marshal(line)).Should(MatchJSON(`{
+				"type": "LineString",
+				"coordinates": [[-180, -90, 1.23], [180, 90, 4.56]]
+			}`))
 		})
 
 	})

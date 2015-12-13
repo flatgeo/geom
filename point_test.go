@@ -14,23 +14,19 @@ var _ = Describe("Point", func() {
 		It("Encodes points as GeoJSON", func() {
 			point := &Point{[]float64{-180, -90}}
 
-			expected, _ := json.Marshal(&geoJSONPoint{
-				"Point",
-				[]float64{-180, -90},
-			})
-
-			Ω(json.Marshal(point)).Should(Equal(expected))
+			Ω(json.Marshal(point)).Should(MatchJSON(`{
+				"type": "Point",
+				"coordinates": [-180, -90]
+			}`))
 		})
 
 		It("Preserves extra dimensions", func() {
 			point := &Point{[]float64{-180, -90, 1.234}}
 
-			expected, _ := json.Marshal(&geoJSONPoint{
-				"Point",
-				[]float64{-180, -90, 1.234},
-			})
-
-			Ω(json.Marshal(point)).Should(Equal(expected))
+			Ω(json.Marshal(point)).Should(MatchJSON(`{
+				"type": "Point",
+				"coordinates": [-180, -90, 1.234]
+			}`))
 		})
 
 	})
