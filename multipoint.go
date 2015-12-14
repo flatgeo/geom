@@ -53,9 +53,9 @@ func (multi *MultiPoint) UnmarshalJSON(data []byte) error {
 	if len(geoJSON.Coordinates) < 1 {
 		return errors.New("Expected a coordinates array with one or more values")
 	}
-	var points []Point
-	for _, coord := range geoJSON.Coordinates {
-		points = append(points, Point{coord})
+	points := make([]Point, len(geoJSON.Coordinates))
+	for i, coord := range geoJSON.Coordinates {
+		points[i] = Point{coord}
 	}
 	multi.Points = points
 	return nil
