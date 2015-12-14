@@ -18,7 +18,7 @@ type geoJSONMultiPoint struct {
 	Coordinates [][]float64 `json:"coordinates"`
 }
 
-// MarshalJSON returns the GeoJSON encoding of a multi-point.
+// MarshalJSON returns the GeoJSON encoding of a MultiPoint.
 func (multi *MultiPoint) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 
