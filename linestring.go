@@ -20,18 +20,18 @@ type geoJSONLineString struct {
 	Coordinates [][]float64 `json:"coordinates"`
 }
 
-// MarshalJSON returns the GeoJSON representation of the line.
+// MarshalJSON returns the GeoJSON encoding of a LineString.
 func (line *LineString) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 	buffer.WriteString(`{"type":"LineString","coordinates":[`)
 
-	stride := 2 + line.Extra
-	for i := 0; i < len(line.Coordinates); i += stride {
+	dimensions := 2 + line.Extra
+	for i := 0; i < len(line.Coordinates); i += dimensions {
 		if i != 0 {
 			buffer.WriteString(`,`)
 		}
 		buffer.WriteString(`[`)
-		for j := 0; j < stride; j++ {
+		for j := 0; j < dimensions; j++ {
 			if j != 0 {
 				buffer.WriteString(`,`)
 			}
@@ -64,8 +64,7 @@ func (line *LineString) UnmarshalJSON(data []byte) error {
 	}
 
 	coordinates := make([]float64, len(geoJSON.Coordinates)*dimensions)
-	for i := 0; i < len(geoJSON.Coordinates); i++ {
-		coord := geoJSON.Coordinates[i]
+	for i, coord := range geoJSON.Coordinates {
 		if len(coord) != dimensions {
 			return fmt.Errorf("Unexpected point length for position %d", i)
 		}

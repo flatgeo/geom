@@ -18,16 +18,16 @@ type geoJSONPoint struct {
 	Coordinates []float64 `json:"coordinates"`
 }
 
-// MarshalJSON returns the GeoJSON encoding of a point.
+// MarshalJSON returns the GeoJSON encoding of a Point.
 func (point *Point) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
 
 	buffer.WriteString(`{"type":"Point","coordinates":[`)
-	for i, v := range point.Coordinates {
+	for i, value := range point.Coordinates {
 		if i != 0 {
 			buffer.WriteString(`,`)
 		}
-		buffer.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
+		buffer.WriteString(strconv.FormatFloat(value, 'g', -1, 64))
 	}
 
 	buffer.WriteString(`]}`)
