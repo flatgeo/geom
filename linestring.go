@@ -57,14 +57,18 @@ func (line *LineString) UnmarshalJSON(data []byte) error {
 		return errors.New("Expected a coordinates array with two or more values")
 	}
 
-	first := geoJSON.Coordinates[0]
+	return line.setCoordinates(geoJSON.Coordinates)
+}
+
+func (line *LineString) setCoordinates(coords [][]float64) error {
+	first := coords[0]
 	dimensions := len(first)
 	if dimensions < 2 {
 		return fmt.Errorf("Unexpected length %d for first point", dimensions)
 	}
 
-	coordinates := make([]float64, len(geoJSON.Coordinates)*dimensions)
-	for i, coord := range geoJSON.Coordinates {
+	coordinates := make([]float64, len(coords)*dimensions)
+	for i, coord := range coords {
 		if len(coord) != dimensions {
 			return fmt.Errorf("Unexpected point length for position %d", i)
 		}

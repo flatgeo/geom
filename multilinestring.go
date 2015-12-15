@@ -2,6 +2,9 @@ package geom
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -48,4 +51,29 @@ func (multi *MultiLineString) MarshalJSON() ([]byte, error) {
 	buffer.WriteString(`]}`)
 
 	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON creates a MultiLineString from GeoJSON.
+func (multi *MultiLineString) UnmarshalJSON(data []byte) error {
+	geoJSON := &geoJSONMultiLineString{}
+	if err := json.Unmarshal(data, geoJSON); err != nil {
+		return err
+	}
+	if geoJSON.Type != "MultiLineString" {
+		return fmt.Errorf(`Unexpected type: "%s"`, geoJSON.Type)
+	}
+	if len(geoJSON.Coordinates) < 1 {
+		return errors.New("Expected a coordinate array with one or more values")
+	}
+
+	lines := make([]LineString, len(geoJSON.Coordinates))
+	for i, coords := range geoJSON.Coordinates {
+		line := LineString{}
+		if err := line.setCoordinates(coords); err != nil {
+			return fmt.Errorf("Unexpected coordinates for line %d: %s", i, err.Error())
+		}
+		lines[i] = line
+	}
+	multi.LineStrings = lines
+	return nil
 }
