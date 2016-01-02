@@ -73,11 +73,15 @@ func (poly *Polygon) UnmarshalJSON(data []byte) error {
 		return errors.New("Expected a coordinates array with one or more rings")
 	}
 
+	return poly.setCoordinates(geoJSON.Coordinates)
+}
+
+func (poly *Polygon) setCoordinates(coords [][][]float64) error {
 	var coordinates []float64
 	var dimensions int
 	var ringStarts []int
 
-	for r, ring := range geoJSON.Coordinates {
+	for r, ring := range coords {
 		if r != 0 {
 			ringStarts = append(ringStarts, len(coordinates))
 		}
