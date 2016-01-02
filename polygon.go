@@ -23,8 +23,14 @@ type geoJSONPolygon struct {
 // MarshalJSON returns the GeoJSON encoding for a Polygon.
 func (poly *Polygon) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
-	buffer.WriteString(`{"type":"Polygon","coordinates":[`)
+	buffer.WriteString(`{"type":"Polygon","coordinates":`)
+	poly.writeCoordinates(&buffer)
+	buffer.WriteString(`}`)
+	return buffer.Bytes(), nil
+}
 
+func (poly *Polygon) writeCoordinates(buffer *bytes.Buffer) {
+	buffer.WriteString(`[`)
 	dimensions := 2 + poly.Extra
 	start := 0
 	for ring := 0; ring <= len(poly.RingStarts); ring++ {
@@ -54,9 +60,7 @@ func (poly *Polygon) MarshalJSON() ([]byte, error) {
 		buffer.WriteString(`]`)
 		start = end
 	}
-
-	buffer.WriteString(`]}`)
-	return buffer.Bytes(), nil
+	buffer.WriteString(`]`)
 }
 
 // UnmarshalJSON creates a Polygon from GeoJSON
@@ -73,11 +77,15 @@ func (poly *Polygon) UnmarshalJSON(data []byte) error {
 		return errors.New("Expected a coordinates array with one or more rings")
 	}
 
+	return poly.setCoordinates(geoJSON.Coordinates)
+}
+
+func (poly *Polygon) setCoordinates(coords [][][]float64) error {
 	var coordinates []float64
 	var dimensions int
 	var ringStarts []int
 
-	for r, ring := range geoJSON.Coordinates {
+	for r, ring := range coords {
 		if r != 0 {
 			ringStarts = append(ringStarts, len(coordinates))
 		}
