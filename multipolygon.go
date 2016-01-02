@@ -1,6 +1,7 @@
 package geom
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,22 @@ type MultiPolygon struct {
 type geoJSONMultiPolygon struct {
 	Type        string          `json:"type"`
 	Coordinates [][][][]float64 `json:"coordinates"`
+}
+
+// MarshalJSON returns the GeoJSON encoding for a MultiPolygon.
+func (multi *MultiPolygon) MarshalJSON() ([]byte, error) {
+	var buffer bytes.Buffer
+	buffer.WriteString(`{"type": "MultiPolygon","coordinates":[`)
+
+	for i, poly := range multi.Polygons {
+		if i != 0 {
+			buffer.WriteString(`,`)
+		}
+		poly.writeCoordinates(&buffer)
+	}
+
+	buffer.WriteString(`]}`)
+	return buffer.Bytes(), nil
 }
 
 // UnmarshalJSON creates a MultiPolygon from GeoJSON

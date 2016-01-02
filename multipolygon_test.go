@@ -9,6 +9,29 @@ import (
 
 var _ = Describe("MultiPolygon", func() {
 
+	Describe("json.Marshal", func() {
+
+		It("Encodes MultiPolygons as GeoJSON", func() {
+			multi := &MultiPolygon{[]Polygon{
+				Polygon{
+					Coordinates: []float64{-180, -90, 180, -90, 180, 90, -180, 90, -180, -90},
+				},
+				Polygon{
+					Coordinates: []float64{-110, -45, 110, -45, 110, 45, -110, 45, -110, -45},
+				},
+			}}
+
+			Ω(json.Marshal(multi)).Should(MatchJSON(`{
+				"type": "MultiPolygon",
+				"coordinates": [
+					[[[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]]],
+					[[[-110, -45], [110, -45], [110, 45], [-110, 45], [-110, -45]]]
+				]
+			}`))
+		})
+
+	})
+
 	Describe("json.Unmarshal", func() {
 
 		It("Decodes GeoJSON a MultiPolygon", func() {
